@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Alchymista BB - moderná kaviareň v Banskej Bystrici s online rezerváciou stolov.">
+    <title>Alchymista BB | Rezervácie stolov</title>
+    <style>
+      :root {
+        --ink: #15100c;
+        --deep: #070605;
+        --moss: #10382f;
+        --moss-2: #1f5749;
+        --brass: #c59a4a;
+        --gold: #e1bd74;
+        --paper: #fffaf0;
+        --cream: #f6eedf;
+        --clay: #b85a4a;
+        --line: rgba(21, 16, 12, 0.14);
+        --shadow: 0 22px 70px rgba(8, 7, 5, 0.18);
+        --radius: 8px;
+        --max: 1180px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(255, 250, 240, 0.98), rgba(246, 238, 223, 0.98)),
+          repeating-linear-gradient(90deg, rgba(197, 154, 74, 0.055) 0 1px, transparent 1px 92px);
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      img { display: block; max-width: 100%; }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+
+      svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        flex: 0 0 auto;
+      }
+
+      .defs { display: none; }
+
+      .preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 1rem;
+        color: var(--paper);
+        background:
+          radial-gradient(circle at 50% 42%, rgba(197, 154, 74, 0.2), transparent 24rem),
+          linear-gradient(135deg, var(--deep), var(--moss));
+        transition: opacity 0.55s ease, visibility 0.55s ease;
+      }
+
+      body.loaded .preloader {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .preloader-mark {
+        width: 5rem;
+        height: 5rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(225, 189, 116, 0.78);
+        border-radius: 50%;
+        color: var(--gold);
+        font-family: Georgia, serif;
+        font-size: 2.7rem;
+        animation: pulse 1.8s ease-in-out infinite;
+      }
+
+      .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        width: min(var(--max), calc(100% - 2rem));
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 1rem;
+        margin: 0.75rem auto 0;
+        padding: 0.7rem 0.85rem;
+        color: var(--paper);
+        background: rgba(7, 6, 5, 0.62);
+        border: 1px solid rgba(255, 250, 240, 0.18);
+        border-radius: var(--radius);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.16);
+      }
+
+      .site-header.scrolled { background: rgba(16, 56, 47, 0.94); }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-width: 0;
+        font-weight: 900;
+      }
+
+      .brand-mark {
+        width: 2.45rem;
+        height: 2.45rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(225, 189, 116, 0.8);
+        border-radius: 50%;
+        color: var(--gold);
+        font-family: Georgia, serif;
+        font-size: 1.35rem;
+      }
+
+      .brand small { color: var(--gold); }
+
+      .site-nav {
+        justify-self: center;
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        color: rgba(255, 250, 240, 0.86);
+        font-size: 0.94rem;
+      }
+
+      .site-nav a {
+        position: relative;
+        padding: 0.5rem 0;
+      }
+
+      .site-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0.25rem;
+        height: 1px;
+        background: var(--gold);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.22s ease;
+      }
+
+      .site-nav a:hover::after,
+      .site-nav a:focus-visible::after { transform: scaleX(1); }
+
+      .button, .nav-cta {
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        padding: 0.72rem 1rem;
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        font-weight: 900;
+        line-height: 1.1;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+
+      .button:hover, .nav-cta:hover, .icon-button:hover, .text-button:hover { transform: translateY(-1px); }
+
+      .button.primary, .nav-cta {
+        color: #1b1107;
+        background: linear-gradient(135deg, var(--gold), var(--brass));
+        box-shadow: 0 12px 24px rgba(197, 154, 74, 0.24);
+      }
+
+      .button.secondary {
+        color: var(--moss);
+        background: rgba(255, 250, 240, 0.88);
+        border-color: var(--line);
+      }
+
+      .button.ghost {
+        color: var(--paper);
+        background: rgba(255, 250, 240, 0.08);
+        border-color: rgba(255, 250, 240, 0.28);
+      }
+
+      .button.wide { width: 100%; }
+
+      .button:disabled {
+        cursor: not-allowed;
+        filter: grayscale(0.7);
+        opacity: 0.55;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .icon-button {
+        width: 2.65rem;
+        height: 2.65rem;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid rgba(21, 16, 12, 0.16);
+        border-radius: var(--radius);
+        color: inherit;
+        background: rgba(255, 250, 240, 0.78);
+      }
+
+      .nav-toggle {
+        display: none;
+        justify-self: end;
+        color: var(--paper);
+        background: rgba(255, 250, 240, 0.08);
+        border-color: rgba(255, 250, 240, 0.2);
+      }
+
+      .text-button {
+        border: 0;
+        padding: 0.45rem 0;
+        color: var(--moss-2);
+        background: transparent;
+        font-weight: 900;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 88svh;
+        display: grid;
+        align-items: end;
+        overflow: hidden;
+        color: var(--paper);
+        background: var(--deep);
+      }
+
+      .hero-media {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, rgba(7, 6, 5, 0.82), rgba(7, 6, 5, 0.5) 45%, rgba(7, 6, 5, 0.18)),
+          linear-gradient(180deg, rgba(7, 6, 5, 0.08) 45%, rgba(7, 6, 5, 0.84)),
+          url("assets/hero-alchymista.png") center / cover;
+        transform: scale(1.04);
+        animation: drift 18s ease-in-out infinite alternate;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        width: min(var(--max), calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 9rem 0 2.25rem;
+      }
+
+      .hero-copy { max-width: 710px; }
+
+      .eyebrow {
+        display: inline-flex;
+        color: var(--brass);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1, h2 {
+        margin: 0.35rem 0 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 900;
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      h1 { max-width: 11ch; font-size: 5rem; }
+      h2 { font-size: 3rem; }
+      h3 { margin: 0; }
+
+      .hero-copy p {
+        max-width: 58ch;
+        margin: 1.15rem 0 0;
+        color: rgba(255, 250, 240, 0.84);
+        font-size: 1.08rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.55rem;
+      }
+
+      .quick-reservation {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 0.75rem;
+        align-items: end;
+        margin-top: 3rem;
+        padding: 0.9rem;
+        color: var(--ink);
+        background: rgba(255, 250, 240, 0.9);
+        border: 1px solid rgba(255, 250, 240, 0.5);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      label {
+        display: grid;
+        gap: 0.38rem;
+        min-width: 0;
+      }
+
+      label span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: rgba(21, 16, 12, 0.72);
+        font-size: 0.86rem;
+        font-weight: 900;
+      }
+
+      input, select, textarea {
+        width: 100%;
+        min-height: 2.9rem;
+        border: 1px solid rgba(21, 16, 12, 0.16);
+        border-radius: var(--radius);
+        padding: 0.72rem 0.78rem;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.88);
+        outline: none;
+      }
+
+      textarea { resize: vertical; }
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--brass);
+        box-shadow: 0 0 0 4px rgba(197, 154, 74, 0.16);
+        background: #fff;
+      }
+
+      .hero-facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 1rem;
+        color: rgba(255, 250, 240, 0.82);
+      }
+
+      .hero-facts span {
+        padding: 0.45rem 0.68rem;
+        border: 1px solid rgba(255, 250, 240, 0.16);
+        border-radius: 999px;
+        background: rgba(7, 6, 5, 0.28);
+      }
+
+      .hero-facts strong { color: var(--gold); }
+
+      .section {
+        width: min(var(--max), calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 5rem 0;
+      }
+
+      .section-heading {
+        max-width: 760px;
+        margin-bottom: 2rem;
+      }
+
+      .section-heading p, .gallery-copy p, .contact-info p {
+        margin: 0.9rem 0 0;
+        color: rgba(21, 16, 12, 0.68);
+        font-size: 1.02rem;
+      }
+
+      .booking-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1.22fr) minmax(330px, 0.78fr);
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .tool-panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 250, 240, 0.84);
+        box-shadow: 0 16px 46px rgba(21, 16, 12, 0.08);
+      }
+
+      .floor-panel, .reservation-panel, .review-form { padding: 1rem; }
+
+      .panel-title {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .panel-title h3 {
+        margin-top: 0.2rem;
+        font-size: 1.35rem;
+      }
+
+      .availability-chip {
+        flex: 0 0 auto;
+        padding: 0.45rem 0.65rem;
+        border-radius: 999px;
+        color: var(--moss);
+        background: rgba(111, 139, 127, 0.16);
+        font-size: 0.82rem;
+        font-weight: 900;
+      }
+
+      .floor-map {
+        position: relative;
+        min-height: 540px;
+        overflow: hidden;
+        border: 1px solid rgba(16, 56, 47, 0.22);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(90deg, rgba(16, 56, 47, 0.08) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(16, 56, 47, 0.08) 1px, transparent 1px),
+          linear-gradient(135deg, #f3ead9, #efe1c8);
+        background-size: 44px 44px, 44px 44px, 100% 100%;
+      }
+
+      .floor-map::before {
+        content: "";
+        position: absolute;
+        left: 5%;
+        right: 5%;
+        bottom: 10%;
+        height: 1px;
+        background: rgba(16, 56, 47, 0.2);
+      }
+
+      .floor-map::after {
+        content: "";
+        position: absolute;
+        left: 6%;
+        top: 8%;
+        width: 18%;
+        height: 73%;
+        border: 2px solid rgba(197, 154, 74, 0.42);
+        border-left: 0;
+        border-radius: 0 var(--radius) var(--radius) 0;
+      }
+
+      .map-zone {
+        position: absolute;
+        z-index: 1;
+        color: rgba(21, 16, 12, 0.38);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        pointer-events: none;
+      }
+
+      .zone-window { left: 8%; top: 7%; }
+      .zone-bar { left: 8%; bottom: 14%; }
+      .zone-gallery { right: 8%; top: 12%; }
+
+      .table-button {
+        position: absolute;
+        z-index: 2;
+        left: calc(var(--x) * 1%);
+        top: calc(var(--y) * 1%);
+        width: 4.9rem;
+        height: 4.9rem;
+        display: grid;
+        place-items: center;
+        transform: translate(-50%, -50%);
+        border: 2px solid rgba(255, 255, 255, 0.76);
+        border-radius: 50%;
+        color: #fff;
+        background: var(--moss-2);
+        box-shadow: 0 14px 26px rgba(16, 56, 47, 0.2);
+        font-weight: 900;
+        transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .table-button strong { display: block; font-size: 1rem; line-height: 1; }
+      .table-button span { display: block; margin-top: 0.14rem; font-size: 0.72rem; opacity: 0.9; }
+      .table-button.square { border-radius: var(--radius); }
+      .table-button.wide { width: 7.2rem; border-radius: var(--radius); }
+      .table-button.available:hover { transform: translate(-50%, -50%) scale(1.05); }
+      .table-button.selected { color: #1b1107; background: var(--brass); }
+      .table-button.reserved { cursor: not-allowed; background: var(--clay); opacity: 0.84; }
+      .table-button.small, .table-button.closed { cursor: not-allowed; background: #6f7069; opacity: 0.66; }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 0.85rem;
+        color: rgba(21, 16, 12, 0.66);
+        font-size: 0.9rem;
+        font-weight: 800;
+      }
+
+      .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+      .legend-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--moss-2); }
+      .legend-dot.selected { background: var(--brass); }
+      .legend-dot.reserved { background: var(--clay); }
+      .legend-dot.small { background: #6f7069; }
+
+      .reservation-form { display: grid; gap: 0.82rem; }
+      .form-grid { display: grid; gap: 0.75rem; }
+      .form-grid.two { grid-template-columns: 1fr 1fr; }
+      .form-grid.three { grid-template-columns: 0.8fr 0.65fr 1.55fr; }
+
+      .selected-table {
+        min-height: 4.6rem;
+        display: grid;
+        gap: 0.2rem;
+        align-content: center;
+        padding: 0.85rem;
+        border: 1px dashed rgba(16, 56, 47, 0.26);
+        border-radius: var(--radius);
+        color: rgba(21, 16, 12, 0.68);
+        background: rgba(111, 139, 127, 0.1);
+      }
+
+      .selected-table strong { color: var(--moss); }
+
+      .result-box {
+        margin-top: 1rem;
+        padding: 0.95rem;
+        border-radius: var(--radius);
+        color: var(--moss);
+        background: rgba(111, 139, 127, 0.14);
+        border: 1px solid rgba(16, 56, 47, 0.18);
+      }
+
+      .result-box.error {
+        color: #7b2e26;
+        background: rgba(184, 90, 74, 0.12);
+        border-color: rgba(184, 90, 74, 0.25);
+      }
+
+      .cancel-form {
+        display: grid;
+        gap: 0.72rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--line);
+      }
+
+      .menu-grid, .review-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+
+      .menu-item, .review-card, .hours-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 250, 240, 0.82);
+        box-shadow: 0 14px 42px rgba(21, 16, 12, 0.06);
+      }
+
+      .menu-item {
+        min-height: 13rem;
+        display: grid;
+        align-content: space-between;
+        padding: 1rem;
+      }
+
+      .menu-item span { color: var(--brass); font-weight: 900; }
+      .menu-item h3 { margin: 2rem 0 0.45rem; font-size: 1.2rem; }
+      .menu-item p, .review-card p { margin: 0; color: rgba(21, 16, 12, 0.68); }
+
+      .gallery-section {
+        display: grid;
+        grid-template-columns: 0.72fr 1.28fr;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .gallery-controls { display: flex; gap: 0.55rem; margin-top: 1.25rem; }
+
+      .gallery-frame {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        background: var(--deep);
+      }
+
+      .gallery-frame img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        transition: opacity 0.28s ease, transform 0.28s ease;
+      }
+
+      .gallery-frame.is-changing img { opacity: 0.18; transform: scale(1.02); }
+
+      .gallery-caption {
+        position: absolute;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.8rem 0.9rem;
+        border: 1px solid rgba(255, 250, 240, 0.22);
+        border-radius: var(--radius);
+        color: var(--paper);
+        background: rgba(7, 6, 5, 0.6);
+        backdrop-filter: blur(12px);
+      }
+
+      .gallery-caption span { color: var(--gold); }
+
+      .review-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .rating-number {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1;
+        color: var(--moss);
+      }
+
+      .rating-stars, .stars { display: inline-flex; color: var(--brass); }
+      .rating-stars svg, .stars svg { fill: currentColor; stroke-width: 1.2; }
+      .rating-stars { gap: 0.16rem; margin-left: 0.6rem; }
+      .stars svg { width: 0.95rem; height: 0.95rem; }
+
+      .review-card {
+        min-height: 12rem;
+        display: grid;
+        align-content: space-between;
+        padding: 1rem;
+      }
+
+      .review-card header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .review-card h3 { font-size: 1.05rem; }
+      .review-card time { color: rgba(21, 16, 12, 0.5); font-size: 0.82rem; }
+
+      .review-actions {
+        display: flex;
+        justify-content: center;
+        margin: 1.25rem 0 1.5rem;
+      }
+
+      .contact-section {
+        display: grid;
+        grid-template-columns: 1fr 0.75fr;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .contact-info {
+        min-height: 430px;
+        display: grid;
+        align-content: end;
+        overflow: hidden;
+        padding: 1.25rem;
+        border-radius: var(--radius);
+        color: var(--paper);
+        background:
+          linear-gradient(180deg, rgba(7, 6, 5, 0.1), rgba(7, 6, 5, 0.86)),
+          url("assets/reserved-table.png") center / cover;
+        box-shadow: var(--shadow);
+      }
+
+      .contact-info p { color: rgba(255, 250, 240, 0.82); }
+
+      .contact-actions, .socials {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 1.2rem;
+      }
+
+      .socials a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 2.6rem;
+        padding: 0.62rem 0.78rem;
+        border: 1px solid rgba(255, 250, 240, 0.24);
+        border-radius: var(--radius);
+        background: rgba(7, 6, 5, 0.42);
+      }
+
+      .hours-card { padding: 1.1rem; }
+      .hours-card h3 { margin-bottom: 1rem; font-size: 1.45rem; }
+      .hours-card dl { display: grid; gap: 0.68rem; margin: 0; }
+      .hours-card dl div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: 0.68rem;
+        border-bottom: 1px solid var(--line);
+      }
+      .hours-card dt { font-weight: 900; }
+      .hours-card dd { margin: 0; color: rgba(21, 16, 12, 0.64); }
+
+      .site-footer {
+        width: min(var(--max), calc(100% - 2rem));
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 auto;
+        padding: 2rem 0 2.5rem;
+        color: rgba(21, 16, 12, 0.58);
+        border-top: 1px solid var(--line);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+      }
+
+      .reveal.is-visible { opacity: 1; transform: none; }
+
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 rgba(225, 189, 116, 0); transform: scale(1); }
+        50% { box-shadow: 0 0 40px rgba(225, 189, 116, 0.32); transform: scale(1.04); }
+      }
+
+      @keyframes drift {
+        from { transform: scale(1.04) translate3d(0, 0, 0); }
+        to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+      }
+
+      @media (max-width: 980px) {
+        .site-header { grid-template-columns: auto auto; }
+        .nav-toggle { display: inline-grid; }
+        .site-nav, .nav-cta { display: none; }
+        .site-nav.is-open {
+          position: absolute;
+          top: calc(100% + 0.55rem);
+          left: 0;
+          right: 0;
+          display: grid;
+          justify-items: start;
+          gap: 0;
+          padding: 0.7rem;
+          border: 1px solid rgba(255, 250, 240, 0.16);
+          border-radius: var(--radius);
+          background: rgba(16, 56, 47, 0.96);
+          box-shadow: var(--shadow);
+        }
+        .site-nav.is-open a { width: 100%; padding: 0.75rem 0.45rem; }
+        h1 { font-size: 3.8rem; }
+        .quick-reservation, .booking-shell, .gallery-section, .contact-section { grid-template-columns: 1fr; }
+        .floor-map { min-height: 470px; }
+        .menu-grid, .review-grid { grid-template-columns: repeat(2, 1fr); }
+        .form-grid.three { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 680px) {
+        .site-header { width: calc(100% - 1rem); margin-top: 0.5rem; }
+        .hero { min-height: 94svh; }
+        .hero-inner { width: min(100% - 1rem, var(--max)); padding-top: 7.2rem; }
+        h1 { font-size: 3rem; }
+        h2 { font-size: 2.2rem; }
+        .hero-actions, .contact-actions, .socials { align-items: stretch; flex-direction: column; }
+        .button, .nav-cta { width: 100%; }
+        .section { width: calc(100% - 1rem); padding: 3.4rem 0; }
+        .form-grid.two, .menu-grid, .review-grid { grid-template-columns: 1fr; }
+        .floor-panel, .reservation-panel, .review-form { padding: 0.75rem; }
+        .floor-map { min-height: 430px; }
+        .table-button { width: 4.2rem; height: 4.2rem; }
+        .table-button.wide { width: 6.4rem; }
+        .panel-title, .review-summary, .gallery-caption, .site-footer { flex-direction: column; align-items: flex-start; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preloader" aria-hidden="true">
+      <div class="preloader-mark">A</div>
+      <p>Miešame kávu, svetlo a rezervácie</p>
+    </div>
+
+    <svg class="defs" aria-hidden="true">
+      <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 6v6l4 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6ZM9 3v15M15 6v15"></path></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.18 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.13.96.35 1.9.66 2.8a2 2 0 0 1-.45 2.11L8.05 9.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.31 1.84.53 2.8.66A2 2 0 0 1 22 16.92Z"></path></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.88 1.18 6.88L12 17.77l-6.18 3.26L7 14.15 2 9.27l6.91-1.01L12 2Z"></path></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"></path></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></symbol>
+      <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37ZM17.5 6.5h.01"></path></symbol>
+      <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2Z"></path></symbol>
+    </svg>
+
+    <header class="site-header" id="siteHeader">
+      <a class="brand" href="#top" aria-label="Alchymista BB domov">
+        <span class="brand-mark">A</span>
+        <span>Alchymista <small>BB</small></span>
+      </a>
+      <button class="icon-button nav-toggle" id="navToggle" type="button" aria-label="Otvoriť menu" aria-expanded="false"><svg><use href="#i-menu"></use></svg></button>
+      <nav class="site-nav" id="siteNav" aria-label="Hlavná navigácia">
+        <a href="#rezervacie">Rezervácie</a>
+        <a href="#ponuka">Ponuka</a>
+        <a href="#galeria">Galéria</a>
+        <a href="#recenzie">Recenzie</a>
+        <a href="#kontakt">Kontakt</a>
+      </nav>
+      <a class="nav-cta" href="#rezervacie"><svg><use href="#i-calendar"></use></svg>Rezervovať</a>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-media" aria-hidden="true"></div>
+        <div class="hero-inner">
+          <div class="hero-copy reveal">
+            <span class="eyebrow">Kaviareň na Československej armády 23</span>
+            <h1>Alchymista BB</h1>
+            <p>Výberová káva, čajové rituály, domáce dezerty a pokojná atmosféra inšpirovaná starou apotékou priamo v centre Banskej Bystrice.</p>
+            <div class="hero-actions">
+              <a class="button primary" href="#rezervacie"><svg><use href="#i-calendar"></use></svg>Rezervovať stôl</a>
+              <a class="button ghost" href="#ponuka">Pozrieť ponuku</a>
+            </div>
+          </div>
+
+          <form class="quick-reservation reveal" id="quickReservation">
+            <label><span>Dátum</span><input type="date" id="quickDate" required></label>
+            <label><span>Čas</span><select id="quickStart" required></select></label>
+            <label><span>Hostia</span><select id="quickGuests" required></select></label>
+            <button class="button primary" type="submit"><svg><use href="#i-arrow-right"></use></svg>Skontrolovať</button>
+          </form>
+
+          <div class="hero-facts reveal">
+            <span><strong>4.7/5</strong> verejné hodnotenie</span>
+            <span><strong>Po - Pia</strong> 7:30 - 19:30</span>
+            <span><strong>+421 904 112 337</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section booking-section" id="rezervacie">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Online rezervácie</span>
+          <h2>Vyberte si čas a stôl priamo v mape.</h2>
+          <p>Ak je stôl už rezervovaný v zvolenom intervale, zmení sa na červený a systém ho v tom čase nepustí objednať znova.</p>
+        </div>
+
+        <div class="booking-shell">
+          <section class="tool-panel floor-panel reveal" aria-label="Mapa stolov">
+            <div class="panel-title">
+              <div><span class="eyebrow">Grafický plán</span><h3>Stoly v Alchymistovi</h3></div>
+              <button class="text-button" id="refreshAvailability" type="button">Obnoviť dostupnosť</button>
+            </div>
+            <div class="floor-map" id="floorMap"></div>
+            <div class="legend">
+              <span><i class="legend-dot"></i>Voľné</span>
+              <span><i class="legend-dot selected"></i>Vybrané</span>
+              <span><i class="legend-dot reserved"></i>Obsadené</span>
+              <span><i class="legend-dot small"></i>Malá kapacita</span>
+            </div>
+          </section>
+
+          <aside class="tool-panel reservation-panel reveal">
+            <div class="panel-title">
+              <div><span class="eyebrow">Rezervačný formulár</span><h3>Detaily návštevy</h3></div>
+              <span class="availability-chip" id="availabilityChip">Načítavam</span>
+            </div>
+
+            <form id="reservationForm" class="reservation-form">
+              <div class="form-grid two">
+                <label><span><svg><use href="#i-calendar"></use></svg>Dátum</span><input type="date" id="bookingDate" required></label>
+                <label><span><svg><use href="#i-clock"></use></svg>Začiatok</span><select id="bookingStart" required></select></label>
+              </div>
+              <div class="form-grid two">
+                <label><span>Dĺžka</span><select id="duration" required><option value="60">1 hodina</option><option value="90" selected>1,5 hodiny</option><option value="120">2 hodiny</option><option value="150">2,5 hodiny</option><option value="180">3 hodiny</option></select></label>
+                <label><span><svg><use href="#i-users"></use></svg>Hostia</span><select id="guests" required></select></label>
+              </div>
+              <div class="selected-table" id="selectedTable"><strong>Stôl ešte nie je vybraný.</strong><span>Kliknite na zelený stôl v pláne.</span></div>
+              <label><span>Meno</span><input type="text" id="guestName" autocomplete="name" placeholder="Vaše meno" required></label>
+              <label><span>Telefón</span><input type="tel" id="guestPhone" autocomplete="tel" placeholder="+421..." required></label>
+              <label><span>E-mail</span><input type="email" id="guestEmail" autocomplete="email" placeholder="voliteľné"></label>
+              <label><span>Poznámka</span><textarea id="guestNote" rows="3" placeholder="Kočík, narodeniny, pokojnejší stôl..."></textarea></label>
+              <button class="button primary wide" id="reserveButton" type="submit" disabled><svg><use href="#i-calendar"></use></svg>Potvrdiť rezerváciu</button>
+            </form>
+
+            <div class="result-box" id="reservationResult" hidden></div>
+
+            <form class="cancel-form" id="cancelForm">
+              <label><span>Zrušiť rezerváciu kódom</span><input type="text" id="cancelCode" maxlength="12" placeholder="napr. A1B2C3"></label>
+              <button class="button secondary wide" type="submit">Zrušiť rezerváciu</button>
+            </form>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="ponuka">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Ponuka</span>
+          <h2>Káva, čaje a malé radosti k stolu.</h2>
+          <p>Výberové espresso, dirty chai, čajové rituály, domáce dezerty a večerné posedenie pri víne.</p>
+        </div>
+        <div class="menu-grid">
+          <article class="menu-item reveal"><span>01</span><div><h3>Espresso a cappuccino</h3><p>Klasika na bar alebo pokojné sedenie pri okne.</p></div></article>
+          <article class="menu-item reveal"><span>02</span><div><h3>Dirty chai</h3><p>Korenistý chai s dávkou espressa, výrazný a krémový.</p></div></article>
+          <article class="menu-item reveal"><span>03</span><div><h3>Čajové rituály</h3><p>Zelené, ovocné a bylinné čaje do pomalšieho dňa.</p></div></article>
+          <article class="menu-item reveal"><span>04</span><div><h3>Domáci cheesecake</h3><p>Dezert k latte, ku knihe alebo poobednej pauze.</p></div></article>
+          <article class="menu-item reveal"><span>05</span><div><h3>Irish coffee</h3><p>Hrejivý večerný podpis pre dlhšie rozhovory.</p></div></article>
+          <article class="menu-item reveal"><span>06</span><div><h3>Víno a večer</h3><p>Menšie kultúrne stretnutia, vernisáže a tichý večer v meste.</p></div></article>
+        </div>
+      </section>
+
+      <section class="section gallery-section" id="galeria">
+        <div class="gallery-copy reveal">
+          <span class="eyebrow">Atmosféra</span>
+          <h2>Teplé svetlo, mosadz, smaragd a vôňa kávy.</h2>
+          <p>Originálne obrázky držia náladu apotékarskej kaviarne bez kopírovania cudzích fotiek zo sociálnych sietí.</p>
+          <div class="gallery-controls">
+            <button class="icon-button" id="galleryPrev" type="button" aria-label="Predchádzajúci obrázok"><svg><use href="#i-chevron-left"></use></svg></button>
+            <button class="icon-button" id="galleryNext" type="button" aria-label="Ďalší obrázok"><svg><use href="#i-chevron-right"></use></svg></button>
+          </div>
+        </div>
+        <div class="gallery-frame reveal">
+          <img id="galleryImage" src="assets/coffee-dessert.png" alt="Káva a dezert v kaviarni Alchymista">
+          <div class="gallery-caption"><strong id="galleryTitle">Dirty chai a dezert</strong><span id="galleryMeta">nápojový detail</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="recenzie">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Live recenzie</span>
+          <h2>Najnovšie hodnotenia bez preplnenia stránky.</h2>
+          <p>Po šiestich recenziách sa zoznam skráti. Tlačidlo otvorí všetky ďalšie hodnotenia.</p>
+        </div>
+        <div class="review-summary reveal">
+          <div><span class="rating-number">4.7</span><span class="rating-stars"><svg><use href="#i-star"></use></svg><svg><use href="#i-star"></use></svg><svg><use href="#i-star"></use></svg><svg><use href="#i-star"></use></svg><svg><use href="#i-star"></use></svg></span></div>
+          <p>Verejné hodnotenie a živé recenzie uložené cez rezervačný backend.</p>
+        </div>
+        <div class="review-grid" id="reviewGrid" aria-live="polite"></div>
+        <div class="review-actions reveal"><button class="button secondary" id="toggleReviews" type="button" hidden>Otvoriť všetky recenzie</button></div>
+        <form class="tool-panel review-form reveal" id="reviewForm">
+          <div class="panel-title"><div><span class="eyebrow">Pridať hodnotenie</span><h3>Vaša skúsenosť</h3></div></div>
+          <div class="form-grid three">
+            <label><span>Meno</span><input type="text" id="reviewName" required placeholder="Meno"></label>
+            <label><span>Hodnotenie</span><select id="reviewRating" required><option value="5">5 hviezd</option><option value="4">4 hviezdy</option><option value="3">3 hviezdy</option><option value="2">2 hviezdy</option><option value="1">1 hviezda</option></select></label>
+            <label><span>Recenzia</span><input type="text" id="reviewText" required placeholder="Krátke hodnotenie"></label>
+          </div>
+          <button class="button primary" type="submit">Pridať recenziu</button>
+        </form>
+      </section>
+
+      <section class="section contact-section" id="kontakt">
+        <div class="contact-info reveal">
+          <span class="eyebrow">Kontakt</span>
+          <h2>Alchymista, Banská Bystrica</h2>
+          <p>Československej armády 23, 974 01 Banská Bystrica</p>
+          <div class="contact-actions">
+            <a class="button primary" href="tel:+421904112337"><svg><use href="#i-phone"></use></svg>Zavolať</a>
+            <a class="button secondary" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=%C4%8Ceskoslovenskej%20arm%C3%A1dy%2023%20Bansk%C3%A1%20Bystrica%20Alchymista"><svg><use href="#i-map"></use></svg>Navigovať</a>
+          </div>
+          <div class="socials">
+            <a href="https://www.facebook.com/alchymistabb/?locale=sk_SK" target="_blank" rel="noreferrer"><svg><use href="#i-facebook"></use></svg>Facebook</a>
+            <a href="https://www.instagram.com/alchymista.bb/" target="_blank" rel="noreferrer"><svg><use href="#i-instagram"></use></svg>Instagram</a>
+          </div>
+        </div>
+        <div class="hours-card reveal">
+          <h3>Otváracie hodiny</h3>
+          <dl>
+            <div><dt>Pondelok</dt><dd>7:30 - 19:30</dd></div>
+            <div><dt>Utorok</dt><dd>7:30 - 19:30</dd></div>
+            <div><dt>Streda</dt><dd>7:30 - 19:30</dd></div>
+            <div><dt>Štvrtok</dt><dd>7:30 - 19:30</dd></div>
+            <div><dt>Piatok</dt><dd>7:30 - 19:30</dd></div>
+            <div><dt>Sobota</dt><dd>Zatvorené</dd></div>
+            <div><dt>Nedeľa</dt><dd>Zatvorené</dd></div>
+          </dl>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Alchymista BB</span><span>Statický web + Google Apps Script rezervácie.</span></footer>
+
+    <script>
+      /*
+        Sem po deploynutí Google Apps Script vlož Web app URL:
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/....../exec";
+      */
+      const APPS_SCRIPT_URL = "";
+
+      const OPEN_MINUTES = 7 * 60 + 30;
+      const CLOSE_MINUTES = 19 * 60 + 30;
+      const TABLES = [
+        { id: "T1", label: "T1", capacity: 2, zone: "Okno", x: 16, y: 28, shape: "round" },
+        { id: "T2", label: "T2", capacity: 2, zone: "Okno", x: 31, y: 24, shape: "round" },
+        { id: "T3", label: "T3", capacity: 4, zone: "Hlavná sála", x: 48, y: 30, shape: "square" },
+        { id: "T4", label: "T4", capacity: 4, zone: "Hlavná sála", x: 66, y: 33, shape: "square" },
+        { id: "T5", label: "T5", capacity: 6, zone: "Galérijný kút", x: 80, y: 52, shape: "wide" },
+        { id: "T6", label: "T6", capacity: 2, zone: "Bar", x: 22, y: 61, shape: "round" },
+        { id: "T7", label: "T7", capacity: 4, zone: "Bar", x: 41, y: 64, shape: "square" },
+        { id: "T8", label: "T8", capacity: 8, zone: "Veľký stôl", x: 61, y: 70, shape: "wide" },
+        { id: "T9", label: "T9", capacity: 2, zone: "Terasový výhľad", x: 14, y: 82, shape: "round" },
+        { id: "T10", label: "T10", capacity: 4, zone: "Terasový výhľad", x: 35, y: 84, shape: "square" }
+      ];
+
+      const seedReviews = [
+        { id: "seed_1", name: "Michaela", rating: 5, text: "Krásne miesto s atmosférou starej apotéky. Dirty chai a koláč boli presne to, čo sme hľadali.", createdAt: "2026-05-16T09:20:00.000Z" },
+        { id: "seed_2", name: "Tomáš", rating: 5, text: "Veľmi príjemná obsluha, dobrá káva a tiché miesto na stretnutie v centre Banskej Bystrice.", createdAt: "2026-05-12T14:44:00.000Z" },
+        { id: "seed_3", name: "Zuzana", rating: 4, text: "Interiér má vlastný charakter, nie je to generická kaviareň. Najviac nám sadlo posedenie pri okne.", createdAt: "2026-05-10T11:12:00.000Z" },
+        { id: "seed_4", name: "Peter", rating: 5, text: "Espresso výborné, personál rýchly a milý. Dobré miesto aj na krátke pracovné stretnutie.", createdAt: "2026-05-06T07:35:00.000Z" },
+        { id: "seed_5", name: "Lenka", rating: 5, text: "Chai latte, domáci dezert a pokojná atmosféra. Presne taký podnik, kam sa človek rád vracia.", createdAt: "2026-04-29T16:05:00.000Z" },
+        { id: "seed_6", name: "Andrej", rating: 4, text: "Príjemná kaviareň blízko galérie. Rezervácia stola sa hodí hlavne pred obedom.", createdAt: "2026-04-23T12:18:00.000Z" },
+        { id: "seed_7", name: "Nina", rating: 5, text: "Majú cit pre detail. Poháre, svetlo, hudba aj servis spolu vytvárajú veľmi pekný zážitok.", createdAt: "2026-04-18T18:40:00.000Z" },
+        { id: "seed_8", name: "Juraj", rating: 5, text: "Skvelá zastávka na kávu v meste. Irish coffee bol poctivý a obsluha poradila bez tlaku.", createdAt: "2026-04-11T15:25:00.000Z" }
+      ];
+
+      const galleryItems = [
+        { src: "assets/coffee-dessert.png", title: "Dirty chai a dezert", meta: "nápojový detail", alt: "Dirty chai latte, espresso a dezert na stole" },
+        { src: "assets/evening-cafe.png", title: "Večerné posedenie", meta: "kultúrna atmosféra", alt: "Večerné posedenie v kaviarni s vínom a malým pódiom" },
+        { src: "assets/reserved-table.png", title: "Stôl pripravený pre hostí", meta: "rezervácie", alt: "Rezervovaný stôl pripravený pre štyroch hostí" }
+      ];
+
+      const state = {
+        tables: TABLES,
+        reservations: [],
+        reviews: [],
+        selectedTableId: null,
+        showAllReviews: false,
+        galleryIndex: 0,
+        availabilityRun: 0
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        header: $("siteHeader"),
+        navToggle: $("navToggle"),
+        nav: $("siteNav"),
+        quickReservation: $("quickReservation"),
+        quickDate: $("quickDate"),
+        quickStart: $("quickStart"),
+        quickGuests: $("quickGuests"),
+        bookingDate: $("bookingDate"),
+        bookingStart: $("bookingStart"),
+        duration: $("duration"),
+        guests: $("guests"),
+        floorMap: $("floorMap"),
+        availabilityChip: $("availabilityChip"),
+        selectedTable: $("selectedTable"),
+        reservationForm: $("reservationForm"),
+        reserveButton: $("reserveButton"),
+        reservationResult: $("reservationResult"),
+        cancelForm: $("cancelForm"),
+        cancelCode: $("cancelCode"),
+        refreshAvailability: $("refreshAvailability"),
+        galleryImage: $("galleryImage"),
+        galleryTitle: $("galleryTitle"),
+        galleryMeta: $("galleryMeta"),
+        galleryPrev: $("galleryPrev"),
+        galleryNext: $("galleryNext"),
+        reviewGrid: $("reviewGrid"),
+        toggleReviews: $("toggleReviews"),
+        reviewForm: $("reviewForm"),
+        reviewName: $("reviewName"),
+        reviewRating: $("reviewRating"),
+        reviewText: $("reviewText")
+      };
+
+      function clean(value, fallback = "") {
+        return String(value ?? fallback).replace(/\s+/g, " ").trim();
+      }
+
+      function minutesFromTime(value) {
+        const [h, m] = String(value || "00:00").split(":").map(Number);
+        return h * 60 + m;
+      }
+
+      function timeFromMinutes(value) {
+        return `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
+      }
+
+      function dateToIso(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function isoToDate(value) {
+        return new Date(`${value}T12:00:00`);
+      }
+
+      function isClosedDate(value) {
+        const day = isoToDate(value).getDay();
+        return day === 0 || day === 6;
+      }
+
+      function nextOpenDate(from = new Date()) {
+        const date = new Date(from);
+        date.setHours(12, 0, 0, 0);
+        while (date.getDay() === 0 || date.getDay() === 6) date.setDate(date.getDate() + 1);
+        return dateToIso(date);
+      }
+
+      function isBackendConfigured() {
+        return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(APPS_SCRIPT_URL);
+      }
+
+      function jsonp(action, params = {}) {
+        const callback = `__alchymista_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const url = new URL(APPS_SCRIPT_URL);
+        url.searchParams.set("action", action);
+        url.searchParams.set("callback", callback);
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) url.searchParams.set(key, String(value));
+        });
+
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          const timeout = window.setTimeout(() => {
+            cleanup();
+            reject(new Error("Server neodpovedá. Skúste to ešte raz."));
+          }, 15000);
+
+          function cleanup() {
+            window.clearTimeout(timeout);
+            delete window[callback];
+            script.remove();
+          }
+
+          window[callback] = (payload) => {
+            cleanup();
+            if (payload && payload.ok === false) reject(new Error(payload.error || "Požiadavka zlyhala."));
+            else resolve(payload || {});
+          };
+
+          script.onerror = () => {
+            cleanup();
+            reject(new Error("Nepodarilo sa spojiť s rezervačným serverom."));
+          };
+          script.src = url.toString();
+          document.body.append(script);
+        });
+      }
+
+      function demoStore(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+        catch { return fallback; }
+      }
+
+      function demoSet(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      async function demoApi(action, params = {}) {
+        const reservations = demoStore("alchymista:reservations", []);
+        const reviews = demoStore("alchymista:reviews", seedReviews);
+        if (action === "tables") return { ok: true, tables: TABLES };
+        if (action === "reservations") return { ok: true, reservations: reservations.filter((item) => item.date === params.date && item.status !== "cancelled") };
+        if (action === "reviews") return { ok: true, reviews: reviews.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) };
+        if (action === "reserve") {
+          const start = minutesFromTime(params.start);
+          const end = start + Number(params.duration);
+          const conflict = reservations.some((item) => item.status !== "cancelled" && item.date === params.date && item.tableId === params.tableId && start < minutesFromTime(item.end) && end > minutesFromTime(item.start));
+          if (conflict) throw new Error("Tento stôl je už v danom čase rezervovaný.");
+          const reservation = { ...params, id: crypto.randomUUID(), code: Math.random().toString(16).slice(2, 8).toUpperCase(), end: timeFromMinutes(end), createdAt: new Date().toISOString(), status: "active" };
+          reservations.push(reservation);
+          demoSet("alchymista:reservations", reservations);
+          return { ok: true, reservation };
+        }
+        if (action === "cancel") {
+          const index = reservations.findIndex((item) => item.code === String(params.code || "").toUpperCase() && item.status !== "cancelled");
+          if (index < 0) throw new Error("Rezerváciu s týmto kódom sme nenašli.");
+          reservations[index].status = "cancelled";
+          demoSet("alchymista:reservations", reservations);
+          return { ok: true, reservation: reservations[index] };
+        }
+        if (action === "addReview") {
+          const review = { id: crypto.randomUUID(), name: params.name, rating: Number(params.rating), text: params.text, createdAt: new Date().toISOString() };
+          reviews.push(review);
+          demoSet("alchymista:reviews", reviews);
+          return { ok: true, review };
+        }
+        return { ok: true };
+      }
+
+      function api(action, params = {}) {
+        return isBackendConfigured() ? jsonp(action, params) : demoApi(action, params);
+      }
+
+      function populateGuestOptions(select) {
+        select.innerHTML = "";
+        for (let i = 1; i <= 8; i++) {
+          const option = document.createElement("option");
+          option.value = String(i);
+          option.textContent = i === 1 ? "1 osoba" : i < 5 ? `${i} osoby` : `${i} osôb`;
+          if (i === 2) option.selected = true;
+          select.append(option);
+        }
+      }
+
+      function populateTimeOptions(select, date, duration, preferred) {
+        const previous = preferred || select.value;
+        select.innerHTML = "";
+        if (!date || isClosedDate(date)) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Zatvorené";
+          option.disabled = true;
+          option.selected = true;
+          select.append(option);
+          return;
+        }
+        for (let minute = OPEN_MINUTES; minute + duration <= CLOSE_MINUTES; minute += 30) {
+          const option = document.createElement("option");
+          option.value = timeFromMinutes(minute);
+          option.textContent = timeFromMinutes(minute);
+          select.append(option);
+        }
+        select.value = [...select.options].some((item) => item.value === previous) ? previous : select.options[0]?.value || "";
+      }
+
+      function getSettings() {
+        return {
+          date: els.bookingDate.value,
+          start: els.bookingStart.value,
+          duration: Number(els.duration.value),
+          guests: Number(els.guests.value)
+        };
+      }
+
+      function tableById(id) {
+        return state.tables.find((table) => table.id === id);
+      }
+
+      function overlaps(reservation, settings) {
+        const start = minutesFromTime(settings.start);
+        const end = start + settings.duration;
+        return start < minutesFromTime(reservation.end) && end > minutesFromTime(reservation.start);
+      }
+
+      function tableStatus(table) {
+        const settings = getSettings();
+        if (!settings.date || !settings.start || isClosedDate(settings.date)) return { status: "closed", label: "Zatvorené" };
+        if (table.capacity < settings.guests) return { status: "small", label: `Len ${table.capacity} miesta` };
+        const reserved = state.reservations.some((item) => item.tableId === table.id && overlaps(item, settings));
+        if (reserved) return { status: "reserved", label: "Obsadené" };
+        if (state.selectedTableId === table.id) return { status: "selected", label: "Vybrané" };
+        return { status: "available", label: "Voľné" };
+      }
+
+      function renderFloor() {
+        els.floorMap.innerHTML = '<span class="map-zone zone-window">okná</span><span class="map-zone zone-bar">bar</span><span class="map-zone zone-gallery">galerijný kút</span>';
+        state.tables.forEach((table) => {
+          const { status, label } = tableStatus(table);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `table-button ${table.shape} ${status}`;
+          button.style.setProperty("--x", table.x);
+          button.style.setProperty("--y", table.y);
+          button.disabled = ["reserved", "small", "closed"].includes(status);
+          button.title = `${table.label} - ${table.zone} - ${label}`;
+          button.setAttribute("aria-label", `${table.label}, ${table.capacity} hostia, ${label}`);
+          button.innerHTML = `<strong>${table.label}</strong><span>${table.capacity} os.</span>`;
+          button.addEventListener("click", () => {
+            state.selectedTableId = table.id;
+            renderFloor();
+          });
+          els.floorMap.append(button);
+        });
+        updateAvailability();
+        updateSelectedTable();
+      }
+
+      function updateAvailability() {
+        const settings = getSettings();
+        if (!settings.date || !settings.start || isClosedDate(settings.date)) {
+          els.availabilityChip.textContent = "Zatvorené";
+          return;
+        }
+        const available = state.tables.filter((table) => tableStatus(table).status === "available").length;
+        els.availabilityChip.textContent = `${available} voľných stolov`;
+      }
+
+      function updateSelectedTable() {
+        const table = tableById(state.selectedTableId);
+        if (!table) {
+          els.selectedTable.innerHTML = "<strong>Stôl ešte nie je vybraný.</strong><span>Kliknite na zelený stôl v pláne.</span>";
+          els.reserveButton.disabled = true;
+          return;
+        }
+        const settings = getSettings();
+        const end = timeFromMinutes(minutesFromTime(settings.start) + settings.duration);
+        els.selectedTable.innerHTML = `<strong>${table.label} - ${table.zone}</strong><span>${settings.date}, ${settings.start} - ${end}, ${settings.guests} hostia, kapacita ${table.capacity}</span>`;
+        els.reserveButton.disabled = false;
+      }
+
+      function resetSelectionIfUnavailable() {
+        const table = tableById(state.selectedTableId);
+        if (!table) {
+          state.selectedTableId = null;
+          return;
+        }
+        const status = tableStatus(table).status;
+        if (status !== "available" && status !== "selected") state.selectedTableId = null;
+      }
+
+      async function loadAvailability() {
+        const run = ++state.availabilityRun;
+        const settings = getSettings();
+        if (!settings.date || isClosedDate(settings.date)) {
+          state.reservations = [];
+          state.selectedTableId = null;
+          renderFloor();
+          return;
+        }
+        try {
+          const data = await api("reservations", { date: settings.date });
+          if (run !== state.availabilityRun) return;
+          state.reservations = data.reservations || [];
+          resetSelectionIfUnavailable();
+          renderFloor();
+        } catch (error) {
+          showReservationMessage(error.message, true);
+        }
+      }
+
+      function showReservationMessage(message, isError = false) {
+        els.reservationResult.hidden = false;
+        els.reservationResult.classList.toggle("error", isError);
+        els.reservationResult.textContent = message;
+      }
+
+      function showReservationSuccess(reservation) {
+        const table = tableById(reservation.tableId) || {};
+        els.reservationResult.hidden = false;
+        els.reservationResult.classList.remove("error");
+        els.reservationResult.innerHTML = `<strong>Rezervácia je potvrdená.</strong><br>${table.label || reservation.tableId}, ${reservation.date}, ${reservation.start} - ${reservation.end}, ${reservation.guests} hostia.<br>Kód na zrušenie: <strong>${reservation.code}</strong>`;
+        els.cancelCode.value = reservation.code;
+      }
+
+      async function submitReservation(event) {
+        event.preventDefault();
+        const table = tableById(state.selectedTableId);
+        if (!table) {
+          showReservationMessage("Najprv vyberte voľný stôl v mape.", true);
+          return;
+        }
+        const settings = getSettings();
+        const payload = {
+          date: settings.date,
+          start: settings.start,
+          duration: settings.duration,
+          guests: settings.guests,
+          tableId: table.id,
+          name: clean($("guestName").value).slice(0, 80),
+          phone: clean($("guestPhone").value).slice(0, 40),
+          email: clean($("guestEmail").value).slice(0, 120),
+          note: clean($("guestNote").value).slice(0, 260)
+        };
+        els.reserveButton.disabled = true;
+        els.reserveButton.textContent = "Rezervujem...";
+        try {
+          const data = await api("reserve", payload);
+          state.selectedTableId = null;
+          showReservationSuccess(data.reservation);
+          await loadAvailability();
+        } catch (error) {
+          showReservationMessage(error.message, true);
+          await loadAvailability();
+        } finally {
+          els.reserveButton.innerHTML = '<svg><use href="#i-calendar"></use></svg>Potvrdiť rezerváciu';
+          updateSelectedTable();
+        }
+      }
+
+      async function cancelReservation(event) {
+        event.preventDefault();
+        const code = clean(els.cancelCode.value).toUpperCase();
+        if (!code) {
+          showReservationMessage("Zadajte kód rezervácie.", true);
+          return;
+        }
+        try {
+          const data = await api("cancel", { code });
+          showReservationMessage(`Rezervácia pre stôl ${data.reservation.tableId} bola zrušená.`);
+          els.cancelCode.value = "";
+          await loadAvailability();
+        } catch (error) {
+          showReservationMessage(error.message, true);
+        }
+      }
+
+      function createStars(rating) {
+        return Array.from({ length: Number(rating) || 0 }, () => '<svg><use href="#i-star"></use></svg>').join("");
+      }
+
+      function renderReviews() {
+        const visible = state.showAllReviews ? state.reviews : state.reviews.slice(0, 6);
+        els.reviewGrid.innerHTML = "";
+        visible.forEach((review) => {
+          const card = document.createElement("article");
+          card.className = "review-card reveal is-visible";
+          card.innerHTML = `<header><div><h3></h3><time datetime="${review.createdAt || ""}"></time></div><span class="stars" aria-label="${review.rating} z 5">${createStars(review.rating)}</span></header><p></p>`;
+          card.querySelector("h3").textContent = review.name;
+          card.querySelector("time").textContent = new Date(review.createdAt || Date.now()).toLocaleDateString("sk-SK", { day: "numeric", month: "short" });
+          card.querySelector("p").textContent = review.text;
+          els.reviewGrid.append(card);
+        });
+        els.toggleReviews.hidden = state.reviews.length <= 6;
+        els.toggleReviews.textContent = state.showAllReviews ? "Skryť recenzie" : "Otvoriť všetky recenzie";
+      }
+
+      async function loadReviews() {
+        try {
+          const data = await api("reviews");
+          state.reviews = data.reviews || seedReviews;
+        } catch {
+          state.reviews = seedReviews;
+        }
+        renderReviews();
+      }
+
+      async function submitReview(event) {
+        event.preventDefault();
+        try {
+          await api("addReview", {
+            name: clean(els.reviewName.value).slice(0, 60),
+            rating: Number(els.reviewRating.value),
+            text: clean(els.reviewText.value).slice(0, 280)
+          });
+          els.reviewText.value = "";
+          state.showAllReviews = true;
+          await loadReviews();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      function renderGallery() {
+        const item = galleryItems[state.galleryIndex];
+        const frame = els.galleryImage.closest(".gallery-frame");
+        frame.classList.add("is-changing");
+        window.setTimeout(() => {
+          els.galleryImage.src = item.src;
+          els.galleryImage.alt = item.alt;
+          els.galleryTitle.textContent = item.title;
+          els.galleryMeta.textContent = item.meta;
+          frame.classList.remove("is-changing");
+        }, 160);
+      }
+
+      function shiftGallery(step) {
+        state.galleryIndex = (state.galleryIndex + step + galleryItems.length) % galleryItems.length;
+        renderGallery();
+      }
+
+      function syncQuickFromMain() {
+        els.quickDate.value = els.bookingDate.value;
+        els.quickGuests.value = els.guests.value;
+        populateTimeOptions(els.quickStart, els.quickDate.value, 90, els.bookingStart.value);
+      }
+
+      function syncMainFromQuick() {
+        els.bookingDate.value = els.quickDate.value;
+        els.guests.value = els.quickGuests.value;
+        populateTimeOptions(els.bookingStart, els.bookingDate.value, Number(els.duration.value), els.quickStart.value);
+      }
+
+      function setupNav() {
+        els.navToggle.addEventListener("click", () => {
+          const isOpen = els.nav.classList.toggle("is-open");
+          els.navToggle.setAttribute("aria-expanded", String(isOpen));
+          els.navToggle.innerHTML = isOpen ? '<svg><use href="#i-x"></use></svg>' : '<svg><use href="#i-menu"></use></svg>';
+        });
+        els.nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+          els.nav.classList.remove("is-open");
+          els.navToggle.setAttribute("aria-expanded", "false");
+          els.navToggle.innerHTML = '<svg><use href="#i-menu"></use></svg>';
+        }));
+        window.addEventListener("scroll", () => els.header.classList.toggle("scrolled", window.scrollY > 24), { passive: true });
+      }
+
+      function setupReveal() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+      }
+
+      function setupForms() {
+        const updateMainTime = () => {
+          populateTimeOptions(els.bookingStart, els.bookingDate.value, Number(els.duration.value));
+          state.selectedTableId = null;
+          syncQuickFromMain();
+          loadAvailability();
+        };
+        els.bookingDate.addEventListener("change", updateMainTime);
+        els.duration.addEventListener("change", updateMainTime);
+        els.bookingStart.addEventListener("change", () => { state.selectedTableId = null; syncQuickFromMain(); loadAvailability(); });
+        els.guests.addEventListener("change", () => { state.selectedTableId = null; syncQuickFromMain(); renderFloor(); });
+        els.quickDate.addEventListener("change", () => populateTimeOptions(els.quickStart, els.quickDate.value, 90));
+        els.quickReservation.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          syncMainFromQuick();
+          document.querySelector("#rezervacie").scrollIntoView({ behavior: "smooth", block: "start" });
+          state.selectedTableId = null;
+          await loadAvailability();
+        });
+        els.refreshAvailability.addEventListener("click", loadAvailability);
+        els.reservationForm.addEventListener("submit", submitReservation);
+        els.cancelForm.addEventListener("submit", cancelReservation);
+        els.reviewForm.addEventListener("submit", submitReview);
+        els.toggleReviews.addEventListener("click", () => { state.showAllReviews = !state.showAllReviews; renderReviews(); });
+        els.galleryPrev.addEventListener("click", () => shiftGallery(-1));
+        els.galleryNext.addEventListener("click", () => shiftGallery(1));
+      }
+
+      async function init() {
+        document.body.classList.add("loaded");
+        const today = dateToIso(new Date());
+        const date = nextOpenDate();
+        [els.quickDate, els.bookingDate].forEach((input) => {
+          input.min = today;
+          input.value = date;
+        });
+        populateGuestOptions(els.quickGuests);
+        populateGuestOptions(els.guests);
+        populateTimeOptions(els.bookingStart, date, Number(els.duration.value), "09:00");
+        populateTimeOptions(els.quickStart, date, 90, "09:00");
+        setupNav();
+        setupReveal();
+        setupForms();
+        try {
+          const tableData = await api("tables");
+          state.tables = tableData.tables || TABLES;
+        } catch {
+          state.tables = TABLES;
+        }
+        await loadAvailability();
+        await loadReviews();
+        window.setInterval(loadReviews, 30000);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
