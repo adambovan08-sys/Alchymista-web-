@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="sk">
   <head>
@@ -249,7 +250,7 @@
         background:
           linear-gradient(90deg, rgba(7, 6, 5, 0.82), rgba(7, 6, 5, 0.5) 45%, rgba(7, 6, 5, 0.18)),
           linear-gradient(180deg, rgba(7, 6, 5, 0.08) 45%, rgba(7, 6, 5, 0.84)),
-          url("assets/hero-alchymista.png") center / cover;
+          url("hero-alchymista.png") center / cover;
         transform: scale(1.04);
         animation: drift 18s ease-in-out infinite alternate;
       }
@@ -689,7 +690,7 @@
         color: var(--paper);
         background:
           linear-gradient(180deg, rgba(7, 6, 5, 0.1), rgba(7, 6, 5, 0.86)),
-          url("assets/reserved-table.png") center / cover;
+          url("reserved-table.png") center / cover;
         box-shadow: var(--shadow);
       }
 
@@ -948,7 +949,7 @@
           </div>
         </div>
         <div class="gallery-frame reveal">
-          <img id="galleryImage" src="assets/coffee-dessert.png" alt="Káva a dezert v kaviarni Alchymista">
+          <img id="galleryImage" src="coffee-dessert.png" alt="Káva a dezert v kaviarni Alchymista">
           <div class="gallery-caption"><strong id="galleryTitle">Dirty chai a dezert</strong><span id="galleryMeta">nápojový detail</span></div>
         </div>
       </section>
@@ -1010,7 +1011,7 @@
     <script>
       /*
         Sem po deploynutí Google Apps Script vlož Web app URL:
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOGpOAlqlBWY1Lg-ewanoTgY7ZCB14Xq-p-u70YmTpNNQ0LX7m-LUqYk2g83oQ975POA/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/....../exec";
       */
       const APPS_SCRIPT_URL = "";
 
@@ -1041,9 +1042,9 @@
       ];
 
       const galleryItems = [
-        { src: "assets/coffee-dessert.png", title: "Dirty chai a dezert", meta: "nápojový detail", alt: "Dirty chai latte, espresso a dezert na stole" },
-        { src: "assets/evening-cafe.png", title: "Večerné posedenie", meta: "kultúrna atmosféra", alt: "Večerné posedenie v kaviarni s vínom a malým pódiom" },
-        { src: "assets/reserved-table.png", title: "Stôl pripravený pre hostí", meta: "rezervácie", alt: "Rezervovaný stôl pripravený pre štyroch hostí" }
+        { src: "coffee-dessert.png", title: "Dirty chai a dezert", meta: "nápojový detail", alt: "Dirty chai latte, espresso a dezert na stole" },
+        { src: "evening-cafe.png", title: "Večerné posedenie", meta: "kultúrna atmosféra", alt: "Večerné posedenie v kaviarni s vínom a malým pódiom" },
+        { src: "reserved-table.png", title: "Stôl pripravený pre hostí", meta: "rezervácie", alt: "Rezervovaný stôl pripravený pre štyroch hostí" }
       ];
 
       const state = {
