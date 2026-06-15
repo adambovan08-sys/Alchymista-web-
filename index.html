@@ -907,7 +907,7 @@
               <div class="selected-table" id="selectedTable"><strong>Stôl ešte nie je vybraný.</strong><span>Kliknite na zelený stôl v pláne.</span></div>
               <label><span>Meno</span><input type="text" id="guestName" autocomplete="name" placeholder="Vaše meno" required></label>
               <label><span>Telefón</span><input type="tel" id="guestPhone" autocomplete="tel" placeholder="+421..." required></label>
-              <label><span>E-mail</span><input type="email" id="guestEmail" autocomplete="email" placeholder="voliteľné"></label>
+              <label><span>E-mail</span><input type="email" id="guestEmail" autocomplete="email" placeholder="vas@email.sk" required></label>
               <label><span>Poznámka</span><textarea id="guestNote" rows="3" placeholder="Kočík, narodeniny, pokojnejší stôl..."></textarea></label>
               <button class="button primary wide" id="reserveButton" type="submit" disabled><svg><use href="#i-calendar"></use></svg>Potvrdiť rezerváciu</button>
             </form>
@@ -1358,7 +1358,7 @@
         const table = tableById(reservation.tableId) || {};
         els.reservationResult.hidden = false;
         els.reservationResult.classList.remove("error");
-        els.reservationResult.innerHTML = `<strong>Rezervácia je potvrdená.</strong><br>${table.label || reservation.tableId}, ${reservation.date}, ${reservation.start} - ${reservation.end}, ${reservation.guests} hostia.<br>Kód na zrušenie: <strong>${reservation.code}</strong>`;
+        els.reservationResult.innerHTML = `<strong>Rezervácia je potvrdená.</strong><br>${table.label || reservation.tableId}, ${reservation.date}, ${reservation.start} - ${reservation.end}, ${reservation.guests} hostia.<br>Potvrdenie a tlačidlo na zrušenie prídu na e-mail.<br>Kód na zrušenie: <strong>${reservation.code}</strong>`;
         els.cancelCode.value = reservation.code;
       }
 
